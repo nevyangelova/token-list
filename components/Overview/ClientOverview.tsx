@@ -19,17 +19,17 @@ export default function ClientOverview({
     tokens,
     initialSearchQuery
 }: ClientOverviewProps) {
-    const {setSearchQuery, setCurrentPage, setTokens} = useTokenContext();
+    const {setSearchQuery, setCurrentPage, setTokens, favoriteTokens} =
+        useTokenContext();
     const [search, setSearch] = useState(initialSearchQuery);
     const [filteredTokens, setFilteredTokens] = useState<Token[]>(tokens);
-    const [displayedTokens, setDisplayedTokens] = useState<Token[]>(
-        tokens.slice(0, ITEMS_PER_PAGE)
-    );
+    const [displayedTokens, setDisplayedTokens] = useState<Token[]>([]);
 
     useEffect(() => {
         setSearchQuery(search);
         setCurrentPage(1);
         setTokens(tokens);
+        setDisplayedTokens(tokens.slice(0, ITEMS_PER_PAGE));
     }, [search, tokens, setSearchQuery, setCurrentPage, setTokens]);
 
     const debounceSearch = useCallback(
@@ -55,6 +55,17 @@ export default function ClientOverview({
         ]);
     };
 
+    const sortedTokens = [
+        ...favoriteTokens,
+        ...filteredTokens.filter(
+            token => !favoriteTokens.some(fav => fav.address === token.address)
+        )
+    ];
+
+    const displayedSortedTokens = [
+        ...sortedTokens.slice(0, displayedTokens.length)
+    ];
+
     const rowRenderer = ({
         index,
         key,
@@ -64,13 +75,16 @@ export default function ClientOverview({
         key: string;
         style: React.CSSProperties;
     }) => {
-        const token = displayedTokens[index];
+        const token = displayedSortedTokens[index];
+        const isFavorite = favoriteTokens.some(
+            t => t.address === token.address
+        );
         return (
             <Link
                 href={`/token/${token.chainId}/${token.address}`}
                 key={key}
                 style={style}
-                className={styles.tokenRow}
+                className={`${styles.tokenRow} ${isFavorite ? styles.favorite : ''}`}
             >
                 <div>
                     <Image
@@ -97,18 +111,20 @@ export default function ClientOverview({
                 onChange={e => setSearch(e.target.value)}
                 className={styles.searchInput}
             />
-            <AutoSizer disableHeight>
-                {({width}) => (
-                    <List
-                        width={width}
-                        height={1000}
-                        rowCount={displayedTokens.length}
-                        rowHeight={50}
-                        rowRenderer={rowRenderer}
-                        overscanRowCount={5}
-                    />
-                )}
-            </AutoSizer>
+            <div className={styles.listContainer}>
+                <AutoSizer disableHeight>
+                    {({width}) => (
+                        <List
+                            width={width}
+                            height={900}
+                            rowCount={displayedSortedTokens.length}
+                            rowHeight={50}
+                            rowRenderer={rowRenderer}
+                            overscanRowCount={5}
+                        />
+                    )}
+                </AutoSizer>
+            </div>
             {displayedTokens.length < filteredTokens.length && (
                 <button
                     onClick={handleLoadMore}
