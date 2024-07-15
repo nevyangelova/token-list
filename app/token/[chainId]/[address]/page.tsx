@@ -1,32 +1,30 @@
-type TokenDetail = {
-    name: string;
-    address: string;
-    logoURI: string;
-    price: number;
+import {fetchTokenDetail, fetchTokens} from '@/api/token';
+import {Metadata} from 'next';
+
+type TokenDetailPageProps = {
+    params: {
+        chainId: string;
+        address: string;
+    };
 };
 
-async function fetchTokenDetail(chainId: string, address: string): Promise<TokenDetail | null> {
-    const res = await fetch(
-        `https://li.quest/v1/token?chain=${chainId}&token=${address}`,
-        {
-            next: {revalidate: 10},
-        }
-    );
-    console.log(chainId, address)
-
-    if (!res.ok) {
-        return null;
-    }
-    return res.json();
+export async function generateStaticParams() {
+    const tokens = await fetchTokens();
+    return tokens.slice(0, 20).map((token) => ({
+        chainId: token.chainId,
+        address: token.address,
+    }));
 }
 
-export default async function TokenDetailPage({
+export async function generateMetadata({
     params,
-}: {
-    params: {chainId: string; address: string};
-}) {
-    const {chainId, address} = params;
+}: TokenDetailPageProps): Promise<Metadata> {
+    const token = await fetchTokenDetail(params.chainId, params.address);
+    return {title: token ? token.name : 'Token not found'};
+}
 
+export default async function TokenDetailPage({params}: TokenDetailPageProps) {
+    const {chainId, address} = params;
     const token = await fetchTokenDetail(chainId, address);
 
     if (!token) {

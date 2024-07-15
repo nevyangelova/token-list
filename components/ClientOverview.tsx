@@ -2,22 +2,16 @@
 
 import {useState, useEffect, useCallback} from 'react';
 import Link from 'next/link';
-import {useTokenContext} from '../context/TokenContext';
 import {List, AutoSizer} from 'react-virtualized';
-
-type Token = {
-    name: string;
-    address: string;
-    logoURI: string;
-    chainId: string;
-};
+import {useTokenContext} from '../context/TokenContext';
+import {Token} from '@/api/token';
 
 type ClientOverviewProps = {
     tokens: Token[];
     initialSearchQuery: string;
 };
 
-const ITEMS_PER_PAGE = 40;
+const ITEMS_PER_PAGE = 20;
 
 export default function ClientOverview({
     tokens,
@@ -78,7 +72,7 @@ export default function ClientOverview({
                     height='20'
                 />
                 <Link href={`/token/${token.chainId}/${token.address}`}>
-                    {token.name}
+                    {token.name} + {token.address}
                 </Link>
             </div>
         );
