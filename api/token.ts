@@ -16,10 +16,10 @@ export async function fetchTokens(): Promise<Token[]> {
     }
 
     const data = await res.json();
-    const tokens = Object.keys(data.tokens).flatMap((chainId) =>
+    const tokens = Object.keys(data.tokens).flatMap(chainId =>
         data.tokens[chainId].map((token: any) => ({
             ...token,
-            chainId,
+            chainId
         }))
     );
     return tokens;
@@ -32,7 +32,7 @@ export async function fetchTokenDetail(
     const res = await fetch(
         `https://li.quest/v1/token?chain=${chainId}&token=${address}`,
         {
-            next: {revalidate: 10},
+            next: {revalidate: 10}
         }
     );
 

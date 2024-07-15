@@ -6,6 +6,7 @@ import {List, AutoSizer} from 'react-virtualized';
 import {useTokenContext} from '../../context/TokenContext';
 import {Token} from '@/api/token';
 import styles from './style.module.scss';
+import Image from 'next/image';
 
 type ClientOverviewProps = {
     tokens: Token[];
@@ -16,7 +17,7 @@ const ITEMS_PER_PAGE = 20;
 
 export default function ClientOverview({
     tokens,
-    initialSearchQuery,
+    initialSearchQuery
 }: ClientOverviewProps) {
     const {setSearchQuery, setCurrentPage, setTokens} = useTokenContext();
     const [search, setSearch] = useState(initialSearchQuery);
@@ -32,15 +33,15 @@ export default function ClientOverview({
     }, [search, tokens, setSearchQuery, setCurrentPage, setTokens]);
 
     const debounceSearch = useCallback(
-        debounce((value) => {
+        debounce(value => {
             setSearchQuery(value);
-            const newFilteredTokens = tokens.filter((token) =>
+            const newFilteredTokens = tokens.filter(token =>
                 token.name.toLowerCase().includes(value.toLowerCase())
             );
             setFilteredTokens(newFilteredTokens);
             setDisplayedTokens(newFilteredTokens.slice(0, ITEMS_PER_PAGE));
         }, 500),
-        [tokens]
+        [tokens, setSearchQuery]
     );
 
     useEffect(() => {
@@ -48,16 +49,16 @@ export default function ClientOverview({
     }, [search, debounceSearch]);
 
     const handleLoadMore = () => {
-        setDisplayedTokens((prev) => [
+        setDisplayedTokens(prev => [
             ...prev,
-            ...filteredTokens.slice(prev.length, prev.length + ITEMS_PER_PAGE),
+            ...filteredTokens.slice(prev.length, prev.length + ITEMS_PER_PAGE)
         ]);
     };
 
     const rowRenderer = ({
         index,
         key,
-        style,
+        style
     }: {
         index: number;
         key: string;
@@ -72,11 +73,11 @@ export default function ClientOverview({
                 className={styles.tokenRow}
             >
                 <div>
-                    <img
+                    <Image
                         src={token.logoURI}
                         alt={token.name}
-                        width='20'
-                        height='20'
+                        width="20"
+                        height="20"
                     />
                     <span>
                         {token.name} - {token.address}
@@ -90,10 +91,10 @@ export default function ClientOverview({
         <div className={styles.container}>
             <h1>Token Overview</h1>
             <input
-                type='text'
-                placeholder='Search tokens'
+                type="text"
+                placeholder="Search tokens"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={e => setSearch(e.target.value)}
                 className={styles.searchInput}
             />
             <AutoSizer disableHeight>

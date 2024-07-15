@@ -1,4 +1,4 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is a Li.fi candidacy Token list application coding challenge
 
 ## Getting Started
 
@@ -14,20 +14,27 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Technical Decisions 
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Virtualized List
+- Initially, I wanted to implement server-side pagination to manage the large dataset efficiently. However, upon closer inspection of the API documentation, I discovered that the API does not support server-side pagination directly. This limitation means that I would need to handle all data on the client side if I wanted to paginate.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- Why Not Client-Side Pagination?
+Client-side pagination involves fetching all data at once and then paginating through it on the client side. This can lead to significant performance issues, especially with large datasets, as it requires loading all the data into memory at once.
 
-## Learn More
+- Solution: React Virtualized
+To address this, I opted for using react-virtualized so I can render only the visible rows in a list and efficiently handle scrolling through large datasets. That way I significantly reduce the number of DOM elements rendered at any one time, improving performance and responsiveness.
 
-To learn more about Next.js, take a look at the following resources:
+- Incremental Static Regeneration
+I implemented ISR for the token detail pages to handle updates to token information (like price changes) without requiring a full rebuild of the site on the server side.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This allows pages to be statically generated at build time and then revalidated at runtime, ensuring fresh data without the overhead of server-side rendering on every request.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- Data Fetching and Caching
+
+1. I fetch detailed information for individual tokens using ISR, setting a revalidation time of 10 seconds to ensure data freshness.
+
+2. Given the size of the data fetched from the API, I need to implement logic to manage response sizes effectively. Fetching in chunks will be the next attempt.
 
 ## Deploy on Vercel
 

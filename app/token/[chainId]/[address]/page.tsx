@@ -12,14 +12,14 @@ type TokenDetailPageProps = {
 
 export async function generateStaticParams() {
     const tokens = await fetchTokens();
-    return tokens.slice(0, 20).map((token) => ({
+    return tokens.slice(0, 20).map(token => ({
         chainId: token.chainId,
-        address: token.address,
+        address: token.address
     }));
 }
 
 export async function generateMetadata({
-    params,
+    params
 }: TokenDetailPageProps): Promise<Metadata> {
     const token = await fetchTokenDetail(params.chainId, params.address);
     return {title: token ? token.name : 'Token not found'};
@@ -39,8 +39,8 @@ export default async function TokenDetailPage({params}: TokenDetailPageProps) {
             <Image
                 src={token.logoURI}
                 alt={token.name}
-                width='50'
-                height='50'
+                width="50"
+                height="50"
             />
             <p>Address: {token.address}</p>
             <p>Symbol: {token.symbol}</p>

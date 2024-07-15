@@ -32,7 +32,7 @@ export const TokenProvider = ({children}: {children: ReactNode}) => {
                 currentPage,
                 setCurrentPage,
                 tokens,
-                setTokens,
+                setTokens
             }}
         >
             {children}
