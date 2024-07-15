@@ -3,19 +3,14 @@ export type Token = {
     address: string;
     logoURI: string;
     chainId: string;
+    symbol: string;
+    decimals: number;
+    coinKey: string;
+    priceUSD: string;
 };
-
-export type TokenDetail = {
-    name: string;
-    address: string;
-    logoURI: string;
-    price: number;
-};
-
-const API_URL = 'https://li.quest/v1/tokens';
 
 export async function fetchTokens(): Promise<Token[]> {
-    const res = await fetch(API_URL);
+    const res = await fetch('https://li.quest/v1/tokens');
     if (!res.ok) {
         throw new Error('Failed to fetch data');
     }
@@ -33,7 +28,7 @@ export async function fetchTokens(): Promise<Token[]> {
 export async function fetchTokenDetail(
     chainId: string,
     address: string
-): Promise<TokenDetail | null> {
+): Promise<Token | null> {
     const res = await fetch(
         `https://li.quest/v1/token?chain=${chainId}&token=${address}`,
         {

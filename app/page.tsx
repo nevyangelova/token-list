@@ -1,4 +1,4 @@
-import ClientOverview from '@/components/ClientOverview';
+import ClientOverview from '@/components/Overview/ClientOverview';
 import {fetchTokens} from '@/api/token';
 
 export default async function OverviewPage() {

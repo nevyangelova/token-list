@@ -3,8 +3,9 @@
 import {useState, useEffect, useCallback} from 'react';
 import Link from 'next/link';
 import {List, AutoSizer} from 'react-virtualized';
-import {useTokenContext} from '../context/TokenContext';
+import {useTokenContext} from '../../context/TokenContext';
 import {Token} from '@/api/token';
+import styles from './style.module.scss';
 
 type ClientOverviewProps = {
     tokens: Token[];
@@ -64,28 +65,36 @@ export default function ClientOverview({
     }) => {
         const token = displayedTokens[index];
         return (
-            <div key={key} style={style}>
-                <img
-                    src={token.logoURI}
-                    alt={token.name}
-                    width='20'
-                    height='20'
-                />
-                <Link href={`/token/${token.chainId}/${token.address}`}>
-                    {token.name} + {token.address}
-                </Link>
-            </div>
+            <Link
+                href={`/token/${token.chainId}/${token.address}`}
+                key={key}
+                style={style}
+                className={styles.tokenRow}
+            >
+                <div>
+                    <img
+                        src={token.logoURI}
+                        alt={token.name}
+                        width='20'
+                        height='20'
+                    />
+                    <span>
+                        {token.name} - {token.address}
+                    </span>
+                </div>
+            </Link>
         );
     };
 
     return (
-        <div>
+        <div className={styles.container}>
             <h1>Token Overview</h1>
             <input
                 type='text'
                 placeholder='Search tokens'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                className={styles.searchInput}
             />
             <AutoSizer disableHeight>
                 {({width}) => (
@@ -100,7 +109,12 @@ export default function ClientOverview({
                 )}
             </AutoSizer>
             {displayedTokens.length < filteredTokens.length && (
-                <button onClick={handleLoadMore}>Load More</button>
+                <button
+                    onClick={handleLoadMore}
+                    className={styles.loadMoreButton}
+                >
+                    Load More
+                </button>
             )}
         </div>
     );
