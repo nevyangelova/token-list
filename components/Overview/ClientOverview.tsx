@@ -8,6 +8,7 @@ import {Token} from '@/api/token';
 import styles from './style.module.scss';
 import defaultLogo from '/public/placeholder.png';
 import Image from 'next/image';
+import favoriteIcon from '/public/favorite.png';
 
 type ClientOverviewProps = {
     tokens: Token[];
@@ -25,13 +26,13 @@ export default function ClientOverview({
     const {setSearchQuery, setTokens, favoriteTokens} = useTokenContext();
     const [search, setSearch] = useState(initialSearchQuery);
     const [filteredTokens, setFilteredTokens] = useState<Token[]>(tokens);
-    const [displayedTokens, setDisplayedTokens] = useState<Token[]>([]);
+    const [displayedTokensCount, setDisplayedTokensCount] =
+        useState(ITEMS_PER_PAGE);
     const [searchError, setSearchError] = useState<string | null>(null);
 
     useEffect(() => {
         setSearchQuery(search);
         setTokens(tokens);
-        setDisplayedTokens(tokens.slice(0, ITEMS_PER_PAGE));
     }, [search, tokens, setSearchQuery, setTokens]);
 
     const debounceSearch = useCallback(
@@ -41,7 +42,7 @@ export default function ClientOverview({
                 token.name.toLowerCase().includes(value.toLowerCase())
             );
             setFilteredTokens(newFilteredTokens);
-            setDisplayedTokens(newFilteredTokens.slice(0, ITEMS_PER_PAGE));
+            setDisplayedTokensCount(ITEMS_PER_PAGE);
             if (newFilteredTokens.length === 0) {
                 setSearchError('No tokens match your search.');
             } else {
@@ -56,10 +57,7 @@ export default function ClientOverview({
     }, [search, debounceSearch]);
 
     const handleLoadMore = () => {
-        setDisplayedTokens(prev => [
-            ...prev,
-            ...filteredTokens.slice(prev.length, prev.length + ITEMS_PER_PAGE)
-        ]);
+        setDisplayedTokensCount(prev => prev + ITEMS_PER_PAGE);
     };
 
     const sortedTokens = [
@@ -69,9 +67,7 @@ export default function ClientOverview({
         )
     ];
 
-    const displayedSortedTokens = [
-        ...sortedTokens.slice(0, displayedTokens.length)
-    ];
+    const displayedSortedTokens = sortedTokens.slice(0, displayedTokensCount);
 
     const rowRenderer = ({
         index,
@@ -100,10 +96,18 @@ export default function ClientOverview({
                         width="20"
                         height="20"
                     />
-                    <span>
-                        {token.name} - {token.address}
-                    </span>
+                    <p className={styles.name}>{token.name}</p>
+                    <p>{token.address}</p>
                 </div>
+                {isFavorite && (
+                    <Image
+                        src={favoriteIcon}
+                        alt="Favorite"
+                        width="20"
+                        height="20"
+                        className={styles.favoriteIcon}
+                    />
+                )}
             </Link>
         );
     };
@@ -132,7 +136,7 @@ export default function ClientOverview({
                     />
                 )}
             </AutoSizer>
-            {displayedTokens.length < filteredTokens.length && (
+            {displayedTokensCount < filteredTokens.length && (
                 <button
                     onClick={handleLoadMore}
                     className={styles.loadMoreButton}
