@@ -1,8 +1,8 @@
 import ClientOverview from '@/components/Overview/ClientOverview';
-import {fetchTokens} from '@/api/token';
+import { fetchTokens } from '@/api/token';
 
 export default async function OverviewPage() {
-    const tokens = await fetchTokens();
+    const { tokens, error } = await fetchTokens();
 
-    return <ClientOverview tokens={tokens} initialSearchQuery={''} />;
+    return <ClientOverview tokens={tokens} error={error} initialSearchQuery={''} />;
 }

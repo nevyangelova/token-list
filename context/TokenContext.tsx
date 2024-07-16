@@ -11,8 +11,6 @@ type Token = {
 type TokenContextType = {
     searchQuery: string;
     setSearchQuery: (query: string) => void;
-    currentPage: number;
-    setCurrentPage: (page: number) => void;
     tokens: Token[];
     setTokens: (tokens: Token[]) => void;
 };
@@ -21,7 +19,6 @@ const TokenContext = createContext<TokenContextType | undefined>(undefined);
 
 export const TokenProvider = ({children}: {children: ReactNode}) => {
     const [searchQuery, setSearchQuery] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
     const [tokens, setTokens] = useState<Token[]>([]);
 
     return (
@@ -29,8 +26,6 @@ export const TokenProvider = ({children}: {children: ReactNode}) => {
             value={{
                 searchQuery,
                 setSearchQuery,
-                currentPage,
-                setCurrentPage,
                 tokens,
                 setTokens
             }}

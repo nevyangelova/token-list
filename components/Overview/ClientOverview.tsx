@@ -6,31 +6,35 @@ import {List, AutoSizer} from 'react-virtualized';
 import {useTokenContext} from '../../context/TokenContext';
 import {Token} from '@/api/token';
 import styles from './style.module.scss';
+import defaultLogo from '/public/placeholder.png';
 import Image from 'next/image';
 
 type ClientOverviewProps = {
     tokens: Token[];
     initialSearchQuery: string;
+    error: string | null;
 };
 
 const ITEMS_PER_PAGE = 20;
 
 export default function ClientOverview({
     tokens,
-    initialSearchQuery
+    initialSearchQuery,
+    error
 }: ClientOverviewProps) {
-    const {setSearchQuery, setCurrentPage, setTokens} = useTokenContext();
+    const {setSearchQuery, setTokens} = useTokenContext();
     const [search, setSearch] = useState(initialSearchQuery);
     const [filteredTokens, setFilteredTokens] = useState<Token[]>(tokens);
     const [displayedTokens, setDisplayedTokens] = useState<Token[]>(
         tokens.slice(0, ITEMS_PER_PAGE)
     );
+    const [searchError, setSearchError] = useState<string | null>(null);
 
     useEffect(() => {
         setSearchQuery(search);
-        setCurrentPage(1);
         setTokens(tokens);
-    }, [search, tokens, setSearchQuery, setCurrentPage, setTokens]);
+        setDisplayedTokens(tokens.slice(0, ITEMS_PER_PAGE));
+    }, [search, tokens, setSearchQuery, setTokens]);
 
     const debounceSearch = useCallback(
         debounce(value => {
@@ -40,6 +44,11 @@ export default function ClientOverview({
             );
             setFilteredTokens(newFilteredTokens);
             setDisplayedTokens(newFilteredTokens.slice(0, ITEMS_PER_PAGE));
+            if (newFilteredTokens.length === 0) {
+                setSearchError('No tokens match your search.');
+            } else {
+                setSearchError(null);
+            }
         }, 500),
         [tokens, setSearchQuery]
     );
@@ -74,7 +83,7 @@ export default function ClientOverview({
             >
                 <div>
                     <Image
-                        src={token.logoURI}
+                        src={token.logoURI || defaultLogo}
                         alt={token.name}
                         width="20"
                         height="20"
@@ -97,6 +106,10 @@ export default function ClientOverview({
                 onChange={e => setSearch(e.target.value)}
                 className={styles.searchInput}
             />
+            {error && <div>{error}</div>}
+            {searchError && (
+                <div>{searchError}</div>
+            )}
             <AutoSizer disableHeight>
                 {({width}) => (
                     <List
