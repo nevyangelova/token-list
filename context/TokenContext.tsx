@@ -16,8 +16,6 @@ type Token = {
 type TokenContextType = {
     searchQuery: string;
     setSearchQuery: (query: string) => void;
-    currentPage: number;
-    setCurrentPage: (page: number) => void;
     tokens: Token[];
     setTokens: (tokens: Token[]) => void;
     favoriteTokens: Token[];
@@ -28,7 +26,6 @@ const TokenContext = createContext<TokenContextType | undefined>(undefined);
 
 export const TokenProvider = ({children}: {children: ReactNode}) => {
     const [searchQuery, setSearchQuery] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
     const [tokens, setTokens] = useState<Token[]>([]);
     const [favoriteTokens, setFavoriteTokens] = useState<Token[]>(() => {
         if (typeof window !== 'undefined') {
@@ -57,8 +54,6 @@ export const TokenProvider = ({children}: {children: ReactNode}) => {
             value={{
                 searchQuery,
                 setSearchQuery,
-                currentPage,
-                setCurrentPage,
                 tokens,
                 setTokens,
                 favoriteTokens,
