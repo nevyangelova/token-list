@@ -1,11 +1,16 @@
 'use client';
 
-import {createContext, useContext, useState, ReactNode} from 'react';
+import {createContext, useContext, useState, ReactNode, useEffect} from 'react';
 
 type Token = {
     name: string;
     address: string;
     logoURI: string;
+    chainId: string;
+    symbol: string;
+    decimals: number;
+    coinKey: string;
+    priceUSD: string;
 };
 
 type TokenContextType = {
@@ -13,6 +18,8 @@ type TokenContextType = {
     setSearchQuery: (query: string) => void;
     tokens: Token[];
     setTokens: (tokens: Token[]) => void;
+    favoriteTokens: Token[];
+    toggleFavorite: (token: Token) => void;
 };
 
 const TokenContext = createContext<TokenContextType | undefined>(undefined);
@@ -20,6 +27,27 @@ const TokenContext = createContext<TokenContextType | undefined>(undefined);
 export const TokenProvider = ({children}: {children: ReactNode}) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [tokens, setTokens] = useState<Token[]>([]);
+    const [favoriteTokens, setFavoriteTokens] = useState<Token[]>(() => {
+        if (typeof window !== 'undefined') {
+            const savedFavorites = localStorage.getItem('favoriteTokens');
+            return savedFavorites ? JSON.parse(savedFavorites) : [];
+        }
+        return [];
+    });
+
+    const toggleFavorite = (token: Token) => {
+        setFavoriteTokens(prev => {
+            const isFavorite = prev.find(t => t.address === token.address);
+            const updatedFavorites = isFavorite
+                ? prev.filter(t => t.address !== token.address)
+                : [...prev, token];
+            localStorage.setItem(
+                'favoriteTokens',
+                JSON.stringify(updatedFavorites)
+            );
+            return updatedFavorites;
+        });
+    };
 
     return (
         <TokenContext.Provider
@@ -27,7 +55,9 @@ export const TokenProvider = ({children}: {children: ReactNode}) => {
                 searchQuery,
                 setSearchQuery,
                 tokens,
-                setTokens
+                setTokens,
+                favoriteTokens,
+                toggleFavorite
             }}
         >
             {children}
