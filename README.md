@@ -1,4 +1,4 @@
-This is a Li.fi candidacy Token list application coding challenge
+This is a Li.fi API Token list coding challenge
 
 ## Getting Started
 
